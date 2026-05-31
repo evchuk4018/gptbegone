@@ -1,13 +1,16 @@
 import { useEffect } from "react";
-import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { SettingsModal } from "./components/SettingsModal";
 import { useChatState } from "./state/useChatState";
 import type { ProviderName } from "./types";
+
+const APP_BASE_PATH = "/ai";
 
 function ChatRoute() {
   const state = useChatState();
   const navigate = useNavigate();
   const params = useParams<{ chatId?: string }>();
+  const toChatPath = (chatId: string) => `${APP_BASE_PATH}/chat/${chatId}`;
 
   useEffect(() => {
     if (params.chatId) {
@@ -30,7 +33,7 @@ function ChatRoute() {
           onClick={async () => {
             const created = await state.createNewChat();
             if (created) {
-              navigate(`/chat/${created.id}`);
+              navigate(toChatPath(created.id));
             }
           }}
         >
@@ -46,7 +49,7 @@ function ChatRoute() {
               className={`chat-item ${state.activeChat?.id === chat.id ? "active" : ""}`}
               onClick={() => {
                 void state.selectChat(chat.id);
-                navigate(`/chat/${chat.id}`);
+                navigate(toChatPath(chat.id));
               }}
             >
               <span>{chat.title}</span>
@@ -155,11 +158,23 @@ function ChatRoute() {
   );
 }
 
+function RootRoute() {
+  return (
+    <main className="root-route">
+      <h1>Basic page</h1>
+      <p>
+        Please go to the app at <Link to={APP_BASE_PATH}>{APP_BASE_PATH}</Link>.
+      </p>
+    </main>
+  );
+}
+
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<ChatRoute />} />
-      <Route path="/chat/:chatId" element={<ChatRoute />} />
+      <Route path="/" element={<RootRoute />} />
+      <Route path={APP_BASE_PATH} element={<ChatRoute />} />
+      <Route path={`${APP_BASE_PATH}/chat/:chatId`} element={<ChatRoute />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

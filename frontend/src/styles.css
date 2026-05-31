@@ -27,6 +27,31 @@ body,
   font-family: var(--sans);
 }
 
+.root-route {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px;
+}
+
+.root-route h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(32px, 6vw, 48px);
+  font-weight: 500;
+}
+
+.root-route p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.root-route a {
+  color: #ffd2c2;
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: 240px 1fr;

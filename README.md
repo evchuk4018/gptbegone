@@ -9,7 +9,8 @@ npm install
 npm run dev
 ```
 
-Frontend: `http://localhost:5173`  
+Frontend landing page: `http://localhost:5173/`  
+Frontend app: `http://localhost:5173/ai`  
 Backend: `http://localhost:3001`
 
 ## Structure
