@@ -21,6 +21,8 @@ None yet.
 - Add tests for behavior that can regress.
 - Keep errors visible and actionable in the UI.
 - Do not hide unsupported model/provider states behind silent failures.
+- every feature is under nameofapp.com/nameoffeature
+-whenver building frontend use your frontend design skill
 
 ## Documentation Rules
 
@@ -28,7 +30,7 @@ None yet.
 - Document only implemented behavior, not planned behavior.
 - Keep documentation brief and accurate.
 - When adding a new folder with meaningful logic, include a short local README or equivalent notes explaining responsibility, public entry points, and storage assumptions.
-
+-Create a seperarte folder that detials design decisons(colors shapes etc) very detialed to ensure a consitent theme across the app
 ## Suggested Structure Discipline
 
 - One module should own chat state.
