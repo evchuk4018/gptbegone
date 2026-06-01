@@ -17,7 +17,7 @@ import type {
   WorkLogEntry
 } from "../types";
 
-const API = "http://localhost:3001/api";
+const API = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API}${path}`, init);
