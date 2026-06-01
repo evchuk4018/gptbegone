@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { SettingsModal } from "./components/SettingsModal";
+import { MoneyApp } from "./money/MoneyApp";
 import { useChatState } from "./state/useChatState";
 import type { ProviderName } from "./types";
 
 const APP_BASE_PATH = "/ai";
+const MONEY_BASE_PATH = "/money";
 
 function ChatRoute() {
   const state = useChatState();
@@ -161,10 +163,12 @@ function ChatRoute() {
 function RootRoute() {
   return (
     <main className="root-route">
-      <h1>Basic page</h1>
-      <p>
-        Please go to the app at <Link to={APP_BASE_PATH}>{APP_BASE_PATH}</Link>.
-      </p>
+      <h1>gptbegone</h1>
+      <p>Local-first modules.</p>
+      <div className="root-links">
+        <Link to={APP_BASE_PATH}>Open AI Chat</Link>
+        <Link to={MONEY_BASE_PATH}>Open Money Tracker</Link>
+      </div>
     </main>
   );
 }
@@ -175,6 +179,7 @@ export default function App() {
       <Route path="/" element={<RootRoute />} />
       <Route path={APP_BASE_PATH} element={<ChatRoute />} />
       <Route path={`${APP_BASE_PATH}/chat/:chatId`} element={<ChatRoute />} />
+      <Route path={MONEY_BASE_PATH} element={<MoneyApp />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

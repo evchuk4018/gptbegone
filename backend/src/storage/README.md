@@ -6,6 +6,7 @@ Owns local persistence against SQLite (`data/app.db`).
 
 - `chatStore.ts`: chat metadata + messages CRUD.
 - `settingsStore.ts`: single-user runtime settings CRUD.
+- Money-domain persistence lives in `../money/storage/*` to keep finance logic isolated from chat state.
 
 ## Public Entry Points
 

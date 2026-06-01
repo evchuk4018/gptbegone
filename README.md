@@ -10,7 +10,8 @@ npm run dev
 ```
 
 Frontend landing page: `http://localhost:5173/`  
-Frontend app: `http://localhost:5173/ai`  
+Frontend AI app: `http://localhost:5173/ai`  
+Frontend money app: `http://localhost:5173/money`  
 Backend: `http://localhost:3001`
 
 ## Structure

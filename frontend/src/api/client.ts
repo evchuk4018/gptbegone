@@ -1,4 +1,21 @@
-import type { ChatDetail, ChatMode, ChatSummary, InstalledModel, ProviderName, Settings } from "../types";
+import type {
+  AllocationRecommendation,
+  BudgetActual,
+  BudgetCategoryPlan,
+  ChatDetail,
+  ChatMode,
+  ChatSummary,
+  HoldingValuation,
+  InstalledModel,
+  JobProfile,
+  MoneyDashboardSnapshot,
+  MoneySettings,
+  PaycheckCheckResult,
+  ProviderName,
+  RecurringExpense,
+  Settings,
+  WorkLogEntry
+} from "../types";
 
 const API = "http://localhost:3001/api";
 
@@ -101,5 +118,157 @@ export const api = {
         }
       }
     }
+  },
+  getMoneySettings() {
+    return json<MoneySettings>("/money/settings");
+  },
+  updateMoneySettings(input: Partial<MoneySettings>) {
+    return json<MoneySettings>("/money/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  listMoneyJobs() {
+    return json<JobProfile[]>("/money/jobs");
+  },
+  createMoneyJob(input: {
+    name: string;
+    payType: "hourly" | "salary";
+    hourlyRate: number;
+    annualSalary: number;
+    estTaxPct: number;
+    notes?: string;
+    active?: boolean;
+  }) {
+    return json<JobProfile>("/money/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  listWorkLogs(filter?: { yearLabel?: string; from?: string; to?: string }) {
+    const params = new URLSearchParams();
+    if (filter?.yearLabel) {
+      params.set("yearLabel", filter.yearLabel);
+    }
+    if (filter?.from) {
+      params.set("from", filter.from);
+    }
+    if (filter?.to) {
+      params.set("to", filter.to);
+    }
+    const query = params.toString();
+    return json<WorkLogEntry[]>(`/money/work-logs${query ? `?${query}` : ""}`);
+  },
+  createWorkLog(input: {
+    workDate: string;
+    yearLabel: string;
+    jobId: string;
+    hours: number;
+    rateOverride?: number | null;
+    actualSpend?: number;
+    actualInvestedTransfer?: number;
+    notes?: string;
+  }) {
+    return json<WorkLogEntry>("/money/work-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  runPaycheckCheck(input: {
+    yearLabel: string;
+    startDate: string;
+    endDate: string;
+    jobId: string | "all";
+    grossReceived: number;
+    tolerance: number;
+  }) {
+    return json<PaycheckCheckResult>("/money/paycheck-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  getBudgetCategories(month: string) {
+    return json<BudgetCategoryPlan[]>(`/money/budget/categories?month=${encodeURIComponent(month)}`);
+  },
+  upsertBudgetCategories(input: {
+    month: string;
+    categories: Array<{ categoryName: string; plannedAmount: number; actualAmountOverride?: number | null; notes?: string }>;
+  }) {
+    return json<BudgetCategoryPlan[]>("/money/budget/categories", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  getBudgetSummary(month: string) {
+    return json<BudgetActual[]>(`/money/budget/summary?month=${encodeURIComponent(month)}`);
+  },
+  listRecurringExpenses() {
+    return json<RecurringExpense[]>("/money/budget/recurring");
+  },
+  createRecurringExpense(input: {
+    categoryName: string;
+    expenseName: string;
+    amount: number;
+    startMonth: string;
+    endMonth?: string | null;
+    dayOfMonth: number;
+    notes?: string;
+    active?: boolean;
+  }) {
+    return json<RecurringExpense>("/money/budget/recurring", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  listHoldings() {
+    return json<HoldingValuation[]>("/money/holdings");
+  },
+  createHolding(input: {
+    holdingDate: string;
+    accountName: string;
+    ticker: string;
+    displayName: string;
+    assetType: "stock" | "crypto" | "bond" | "mutual_fund" | "etf" | "cash" | "other";
+    units: number;
+    costBasisPerUnit: number;
+    currentPrice?: number;
+    sector?: string;
+    notes?: string;
+  }) {
+    return json<HoldingValuation>("/money/holdings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  updatePrice(input: { ticker: string; price: number; priceDate: string; notes?: string }) {
+    return json<{ accepted: boolean }>("/money/prices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  previewRecommendation(input: {
+    netPay: number;
+    bankBalanceBefore: number;
+    workDate: string;
+    spendAmountOverride?: number;
+    cashAmountOverride?: number;
+    investAmountOverride?: number;
+  }) {
+    return json<AllocationRecommendation>("/money/recommendations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  getMoneyDashboard() {
+    return json<MoneyDashboardSnapshot>("/money/dashboard");
   }
 };

@@ -2,6 +2,8 @@
 
 This document defines the visual language for the local-first chatbot so new UI work stays consistent.
 
+For the finance module visual system, see `docs/design-system/money/README.md`.
+
 ## Direction
 
 - Reference style: Claude-like, editorial dark interface.

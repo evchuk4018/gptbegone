@@ -7,6 +7,7 @@ import { LlamaCppProvider } from "./providers/llamaCppProvider.js";
 import { OllamaProvider } from "./providers/ollamaProvider.js";
 import { ChatService } from "./services/chatService.js";
 import { ModelCatalogService } from "./services/modelCatalogService.js";
+import { createMoneyRouter } from "./money/router.js";
 import {
   createChatSchema,
   downloadModelSchema,
@@ -23,6 +24,7 @@ export function createApp() {
   const llamaCppProvider = new LlamaCppProvider(getSettings);
   const chatService = new ChatService(ollamaProvider, llamaCppProvider);
   const modelCatalog = new ModelCatalogService(ollamaProvider, llamaCppProvider);
+  const moneyRouter = createMoneyRouter();
 
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
@@ -137,6 +139,8 @@ export function createApp() {
       return res.status(500).json({ error: message });
     }
   });
+
+  app.use("/api/money", moneyRouter);
 
   return app;
 }

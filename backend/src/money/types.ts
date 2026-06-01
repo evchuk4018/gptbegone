@@ -1,45 +1,4 @@
-export type ProviderName = "ollama" | "llama-cpp";
-
-export type ChatMode = {
-  thinking: boolean;
-  flash: boolean;
-};
-
-export type ChatSummary = {
-  id: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-  model: string;
-  provider: ProviderName;
-  mode: ChatMode;
-};
-
-export type ChatMessage = {
-  id: string;
-  chatId: string;
-  role: "user" | "assistant" | "system";
-  content: string;
-  createdAt: string;
-};
-
-export type ChatDetail = ChatSummary & {
-  messages: ChatMessage[];
-};
-
-export type InstalledModel = {
-  id: string;
-  name: string;
-  provider: ProviderName;
-  source: "installed" | "downloaded";
-};
-
-export type Settings = {
-  defaultProvider: ProviderName;
-  ollamaBaseUrl: string;
-  llamaCppBaseUrl: string;
-  llamaModelsDir: string;
-};
+export type PayType = "hourly" | "salary";
 
 export type MoneySettings = {
   investPct: number;
@@ -65,7 +24,7 @@ export type MoneySettings = {
 export type JobProfile = {
   id: string;
   name: string;
-  payType: "hourly" | "salary";
+  payType: PayType;
   hourlyRate: number;
   annualSalary: number;
   effectiveHourly: number;
@@ -98,6 +57,15 @@ export type WorkLogEntry = {
   updatedAt: string;
 };
 
+export type PaycheckCheckInput = {
+  yearLabel: string;
+  startDate: string;
+  endDate: string;
+  jobId: string | "all";
+  grossReceived: number;
+  tolerance: number;
+};
+
 export type PaycheckCheckResult = {
   id: string;
   yearLabel: string;
@@ -126,14 +94,6 @@ export type BudgetCategoryPlan = {
   updatedAt: string;
 };
 
-export type BudgetActual = {
-  month: string;
-  categoryName: string;
-  plannedAmount: number;
-  actualAmount: number;
-  variance: number;
-};
-
 export type RecurringExpense = {
   id: string;
   categoryName: string;
@@ -148,13 +108,23 @@ export type RecurringExpense = {
   updatedAt: string;
 };
 
-export type HoldingValuation = {
+export type BudgetActual = {
+  month: string;
+  categoryName: string;
+  plannedAmount: number;
+  actualAmount: number;
+  variance: number;
+};
+
+export type AssetType = "stock" | "crypto" | "bond" | "mutual_fund" | "etf" | "cash" | "other";
+
+export type Holding = {
   id: string;
   holdingDate: string;
   accountName: string;
   ticker: string;
   displayName: string;
-  assetType: "stock" | "crypto" | "bond" | "mutual_fund" | "etf" | "cash" | "other";
+  assetType: AssetType;
   units: number;
   costBasisPerUnit: number;
   currentPrice: number;
@@ -162,9 +132,27 @@ export type HoldingValuation = {
   notes: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type HoldingValuation = Holding & {
   totalCost: number;
   marketValue: number;
   gainLoss: number;
+};
+
+export type ContributionAccountType = "roth_ira" | "k401" | "taxable" | "cash";
+
+export type ContributionEntry = {
+  id: string;
+  entryDate: string;
+  accountType: ContributionAccountType;
+  contribution: number;
+  employerMatch: number;
+  withdrawal: number;
+  netContribution: number;
+  taxYear: number;
+  notes: string;
+  createdAt: string;
 };
 
 export type AllocationRecommendation = {
