@@ -43,6 +43,6 @@ describe("App routes", () => {
       </MemoryRouter>
     );
 
-    expect(html).toContain("Workout Tracking");
+    expect(html).toContain("Training Ledger");
   });
 });

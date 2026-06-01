@@ -1,13 +1,26 @@
 # Workout Module (Frontend)
 
-Owns `/workout` UI and client-side orchestration for workouts, templates, PR visibility, calendar/rest-day tracking, and bodyweight logging.
+Owns the `/workout` route as a mobile-centered dark experience with PWA installability and offline-aware messaging.
 
 ## Responsibilities
 
-- `WorkoutApp.tsx`: route-level workout UI and section switching.
-- `useWorkoutState.ts`: API loading, form state, and submit flows for workout features.
+- `WorkoutApp.tsx`: mobile app shell, bottom navigation, card/list rendering, and section composition.
+- `useWorkoutState.ts`: workout snapshot loading, form state, mutation submits, and online/offline guardrails.
+
+## Information Architecture
+
+- Primary tabs: `Overview`, `Log Workout`, `Templates`, `Progress`, `More`.
+- `More` includes secondary views for `Calendar` and `Bodyweight`.
+- Desktop keeps mobile visual language via a centered phone-like canvas and selective tablet expansion for dense progress cards.
+
+## Offline + PWA Behavior
+
+- PWA shell and service worker are app-level, with workout-first launch (`/workout`).
+- `GET /api/workout/*` requests are runtime cached (network-first with cache fallback).
+- Non-GET workout writes are online-only; offline writes show actionable UI errors.
+- When offline, UI shows explicit state and uses last-synced data when available.
 
 ## API Assumptions
 
-- Reads/writes only through `/api/workout/*` endpoints.
-- PRs and progress are backend-derived from session logs in v1.
+- Uses existing `/api/workout/*` endpoints only.
+- No backend contract changes; progress and PRs remain backend-derived.

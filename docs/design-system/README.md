@@ -5,6 +5,8 @@ This document defines the visual language for the local-first chatbot so new UI 
 For the finance module visual system, see `docs/design-system/money/README.md`.
 For the workout module visual system, see `docs/design-system/workout/README.md`.
 
+Workout module direction (latest): mobile-centered dark training tracker with a phone-like canvas and bottom-tab navigation.
+
 ## Direction
 
 - Reference style: Claude-like, editorial dark interface.

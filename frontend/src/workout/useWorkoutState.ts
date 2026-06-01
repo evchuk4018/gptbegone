@@ -118,6 +118,9 @@ export function computeWorkoutOverview(
 export function useWorkoutState() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(
+    typeof navigator !== "undefined" ? !navigator.onLine : false
+  );
   const [month, setMonth] = useState(defaultMonth());
   const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
@@ -194,7 +197,11 @@ export function useWorkoutState() {
       setTemplateForm((prev) => ({ ...prev, exerciseId: prev.exerciseId || snapshot.exercises[0]?.id || "" }));
       setSessionForm((prev) => ({ ...prev, exerciseId: prev.exerciseId || snapshot.exercises[0]?.id || "" }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load workout module");
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        setError("Offline: could not refresh workout data. Showing last synced data if available.");
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to load workout module");
+      }
     } finally {
       setLoading(false);
     }
@@ -204,19 +211,46 @@ export function useWorkoutState() {
     void reload();
   }, [reload]);
 
+  useEffect(() => {
+    const onOnline = () => setIsOffline(false);
+    const onOffline = () => setIsOffline(true);
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
+  }, []);
+
+  const rejectOfflineWrite = useCallback(() => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setError("You are offline. Reconnect to save workout changes.");
+      return true;
+    }
+    return false;
+  }, []);
+
   const submitExercise = useCallback(async () => {
     if (!exerciseForm.name.trim()) {
       return;
     }
+    if (rejectOfflineWrite()) {
+      return;
+    }
+    setError(null);
     await api.createWorkoutExercise(exerciseForm);
     setExerciseForm({ name: "", exerciseType: "strength", muscleGroup: "", equipment: "" });
     await reload();
-  }, [exerciseForm, reload]);
+  }, [exerciseForm, rejectOfflineWrite, reload]);
 
   const submitTemplate = useCallback(async () => {
     if (!templateForm.name.trim() || !templateForm.exerciseId) {
       return;
     }
+    if (rejectOfflineWrite()) {
+      return;
+    }
+    setError(null);
     await api.createWorkoutTemplate({
       name: templateForm.name,
       notes: templateForm.notes,
@@ -251,12 +285,16 @@ export function useWorkoutState() {
       itemNotes: ""
     }));
     await reload();
-  }, [reload, templateForm]);
+  }, [rejectOfflineWrite, reload, templateForm]);
 
   const submitSession = useCallback(async () => {
     if (!sessionForm.exerciseId || !sessionForm.workoutDate || !sessionForm.title.trim()) {
       return;
     }
+    if (rejectOfflineWrite()) {
+      return;
+    }
+    setError(null);
     await api.createWorkoutSession(buildCreateSessionPayload(sessionForm));
     setSessionForm((prev) => ({
       ...prev,
@@ -271,23 +309,31 @@ export function useWorkoutState() {
       setNotes: ""
     }));
     await reload();
-  }, [reload, sessionForm]);
+  }, [rejectOfflineWrite, reload, sessionForm]);
 
   const submitDayStatus = useCallback(async () => {
     if (!dayStatusForm.date) {
       return;
     }
+    if (rejectOfflineWrite()) {
+      return;
+    }
+    setError(null);
     await api.updateWorkoutDayStatus(dayStatusForm.date, {
       isRestDay: dayStatusForm.isRestDay,
       notes: dayStatusForm.notes
     });
     await reload();
-  }, [dayStatusForm, reload]);
+  }, [dayStatusForm, rejectOfflineWrite, reload]);
 
   const submitBodyweight = useCallback(async () => {
     if (!bodyweightForm.entryDate || !bodyweightForm.weight) {
       return;
     }
+    if (rejectOfflineWrite()) {
+      return;
+    }
+    setError(null);
     await api.createBodyweightEntry({
       entryDate: bodyweightForm.entryDate,
       weight: Number(bodyweightForm.weight),
@@ -295,7 +341,7 @@ export function useWorkoutState() {
     });
     setBodyweightForm((prev) => ({ ...prev, weight: "", notes: "" }));
     await reload();
-  }, [bodyweightForm, reload]);
+  }, [bodyweightForm, rejectOfflineWrite, reload]);
 
   const overview = useMemo(() => {
     return computeWorkoutOverview(sessions, calendarDays, bodyweightEntries);
@@ -304,6 +350,7 @@ export function useWorkoutState() {
   return {
     loading,
     error,
+    isOffline,
     month,
     exercises,
     templates,
