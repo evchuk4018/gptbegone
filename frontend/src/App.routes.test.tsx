@@ -13,6 +13,7 @@ describe("App routes", () => {
 
     expect(html).toContain("Open AI Chat");
     expect(html).toContain("Open Money Tracker");
+    expect(html).toContain("Open Workout Tracker");
   });
 
   it("renders chat route shell", () => {
@@ -33,5 +34,15 @@ describe("App routes", () => {
     );
 
     expect(html).toContain("Money Command");
+  });
+
+  it("renders workout route shell", () => {
+    const html = renderToString(
+      <MemoryRouter initialEntries={["/workout"]}>
+        <App />
+      </MemoryRouter>
+    );
+
+    expect(html).toContain("Workout Tracking");
   });
 });

@@ -8,7 +8,8 @@ React + Vite single-page app.
 - `/ai`: main chat app.
 - `/ai/chat/:chatId`: specific chat session.
 - `/money`: finance and budget tracker module.
+- `/workout`: workout logging and progress tracking module.
 
 ## Deploy Path
 
-Vite is configured with `base: "/"` so `/`, `/ai`, and `/money` all resolve correctly.
+Vite is configured with `base: "/"` so `/`, `/ai`, `/money`, and `/workout` all resolve correctly.

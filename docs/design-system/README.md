@@ -3,6 +3,7 @@
 This document defines the visual language for the local-first chatbot so new UI work stays consistent.
 
 For the finance module visual system, see `docs/design-system/money/README.md`.
+For the workout module visual system, see `docs/design-system/workout/README.md`.
 
 ## Direction
 

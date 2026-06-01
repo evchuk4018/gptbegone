@@ -8,6 +8,7 @@ import { OllamaProvider } from "./providers/ollamaProvider.js";
 import { ChatService } from "./services/chatService.js";
 import { ModelCatalogService } from "./services/modelCatalogService.js";
 import { createMoneyRouter } from "./money/router.js";
+import { createWorkoutRouter } from "./workout/router.js";
 import {
   createChatSchema,
   downloadModelSchema,
@@ -25,6 +26,7 @@ export function createApp() {
   const chatService = new ChatService(ollamaProvider, llamaCppProvider);
   const modelCatalog = new ModelCatalogService(ollamaProvider, llamaCppProvider);
   const moneyRouter = createMoneyRouter();
+  const workoutRouter = createWorkoutRouter();
 
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
@@ -141,6 +143,7 @@ export function createApp() {
   });
 
   app.use("/api/money", moneyRouter);
+  app.use("/api/workout", workoutRouter);
 
   return app;
 }

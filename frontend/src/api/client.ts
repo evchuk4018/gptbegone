@@ -1,7 +1,9 @@
 import type {
   AllocationRecommendation,
+  BodyweightEntry,
   BudgetActual,
   BudgetCategoryPlan,
+  CardioProgressPoint,
   ChatDetail,
   ChatMode,
   ChatSummary,
@@ -12,8 +14,14 @@ import type {
   MoneySettings,
   PaycheckCheckResult,
   ProviderName,
+  StrengthProgressPoint,
   RecurringExpense,
   Settings,
+  WorkoutCalendarDay,
+  WorkoutExercise,
+  WorkoutPR,
+  WorkoutSession,
+  WorkoutTemplate,
   WorkLogEntry
 } from "../types";
 
@@ -270,5 +278,188 @@ export const api = {
   },
   getMoneyDashboard() {
     return json<MoneyDashboardSnapshot>("/money/dashboard");
+  },
+  listWorkoutExercises() {
+    return json<WorkoutExercise[]>("/workout/exercises");
+  },
+  createWorkoutExercise(input: {
+    name: string;
+    exerciseType: "strength" | "cardio";
+    muscleGroup?: string;
+    equipment?: string;
+    active?: boolean;
+  }) {
+    return json<WorkoutExercise>("/workout/exercises", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  listWorkoutTemplates() {
+    return json<WorkoutTemplate[]>("/workout/templates");
+  },
+  createWorkoutTemplate(input: {
+    name: string;
+    notes?: string;
+    items: Array<{
+      exerciseId: string;
+      orderIndex?: number;
+      targetSets?: number | null;
+      targetReps?: number | null;
+      targetWeight?: number | null;
+      targetDurationSeconds?: number | null;
+      targetDistance?: number | null;
+      targetPace?: number | null;
+      targetIntensity?: number | null;
+      targetHeartRate?: number | null;
+      notes?: string;
+    }>;
+  }) {
+    return json<WorkoutTemplate>("/workout/templates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  updateWorkoutTemplate(
+    templateId: string,
+    input: Partial<{
+      name: string;
+      notes: string;
+      items: Array<{
+        exerciseId: string;
+        orderIndex?: number;
+        targetSets?: number | null;
+        targetReps?: number | null;
+        targetWeight?: number | null;
+        targetDurationSeconds?: number | null;
+        targetDistance?: number | null;
+        targetPace?: number | null;
+        targetIntensity?: number | null;
+        targetHeartRate?: number | null;
+        notes?: string;
+      }>;
+    }>
+  ) {
+    return json<WorkoutTemplate>(`/workout/templates/${templateId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  deleteWorkoutTemplate(templateId: string) {
+    return json<void>(`/workout/templates/${templateId}`, { method: "DELETE" });
+  },
+  listWorkoutSessions(filter?: { from?: string; to?: string }) {
+    const params = new URLSearchParams();
+    if (filter?.from) {
+      params.set("from", filter.from);
+    }
+    if (filter?.to) {
+      params.set("to", filter.to);
+    }
+    const query = params.toString();
+    return json<WorkoutSession[]>(`/workout/sessions${query ? `?${query}` : ""}`);
+  },
+  createWorkoutSession(input: {
+    workoutDate: string;
+    title: string;
+    templateId?: string | null;
+    notes?: string;
+    items: Array<{
+      exerciseId: string;
+      orderIndex?: number;
+      notes?: string;
+      sets: Array<{
+        setIndex?: number;
+        reps?: number | null;
+        weight?: number | null;
+        durationSeconds?: number | null;
+        distance?: number | null;
+        pace?: number | null;
+        intensity?: number | null;
+        heartRate?: number | null;
+        notes?: string;
+      }>;
+    }>;
+  }) {
+    return json<WorkoutSession>("/workout/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  updateWorkoutSession(
+    sessionId: string,
+    input: Partial<{
+      workoutDate: string;
+      title: string;
+      templateId: string | null;
+      notes: string;
+      items: Array<{
+        exerciseId: string;
+        orderIndex?: number;
+        notes?: string;
+        sets: Array<{
+          setIndex?: number;
+          reps?: number | null;
+          weight?: number | null;
+          durationSeconds?: number | null;
+          distance?: number | null;
+          pace?: number | null;
+          intensity?: number | null;
+          heartRate?: number | null;
+          notes?: string;
+        }>;
+      }>;
+    }>
+  ) {
+    return json<WorkoutSession>(`/workout/sessions/${sessionId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  deleteWorkoutSession(sessionId: string) {
+    return json<void>(`/workout/sessions/${sessionId}`, { method: "DELETE" });
+  },
+  updateWorkoutDayStatus(date: string, input: { isRestDay: boolean; notes?: string }) {
+    return json<WorkoutCalendarDay>(`/workout/day-status/${date}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
+  },
+  getWorkoutCalendar(month: string) {
+    return json<WorkoutCalendarDay[]>(`/workout/calendar?month=${encodeURIComponent(month)}`);
+  },
+  getStrengthProgress(exerciseId?: string) {
+    const query = exerciseId ? `?exerciseId=${encodeURIComponent(exerciseId)}` : "";
+    return json<StrengthProgressPoint[]>(`/workout/progress/strength${query}`);
+  },
+  getCardioProgress(exerciseId?: string) {
+    const query = exerciseId ? `?exerciseId=${encodeURIComponent(exerciseId)}` : "";
+    return json<CardioProgressPoint[]>(`/workout/progress/cardio${query}`);
+  },
+  getWorkoutPrs() {
+    return json<WorkoutPR[]>("/workout/prs");
+  },
+  listBodyweightEntries(filter?: { from?: string; to?: string }) {
+    const params = new URLSearchParams();
+    if (filter?.from) {
+      params.set("from", filter.from);
+    }
+    if (filter?.to) {
+      params.set("to", filter.to);
+    }
+    const query = params.toString();
+    return json<BodyweightEntry[]>(`/workout/bodyweight${query ? `?${query}` : ""}`);
+  },
+  createBodyweightEntry(input: { entryDate: string; weight: number; notes?: string }) {
+    return json<BodyweightEntry>("/workout/bodyweight", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input)
+    });
   }
 };

@@ -182,6 +182,95 @@ CREATE TABLE IF NOT EXISTS money_price_updates (
   notes TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS workout_exercises (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  exercise_type TEXT NOT NULL CHECK (exercise_type IN ('strength', 'cardio')),
+  muscle_group TEXT NOT NULL,
+  equipment TEXT NOT NULL,
+  is_custom INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS workout_templates (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  notes TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS workout_template_items (
+  id TEXT PRIMARY KEY,
+  template_id TEXT NOT NULL,
+  exercise_id TEXT NOT NULL,
+  order_index INTEGER NOT NULL,
+  target_sets INTEGER,
+  target_reps REAL,
+  target_weight REAL,
+  target_duration_seconds REAL,
+  target_distance REAL,
+  target_pace REAL,
+  target_intensity REAL,
+  target_heart_rate REAL,
+  notes TEXT NOT NULL,
+  FOREIGN KEY(template_id) REFERENCES workout_templates(id) ON DELETE CASCADE,
+  FOREIGN KEY(exercise_id) REFERENCES workout_exercises(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE IF NOT EXISTS workout_sessions (
+  id TEXT PRIMARY KEY,
+  workout_date TEXT NOT NULL,
+  title TEXT NOT NULL,
+  template_id TEXT,
+  notes TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY(template_id) REFERENCES workout_templates(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS workout_session_items (
+  id TEXT PRIMARY KEY,
+  session_id TEXT NOT NULL,
+  exercise_id TEXT NOT NULL,
+  order_index INTEGER NOT NULL,
+  notes TEXT NOT NULL,
+  FOREIGN KEY(session_id) REFERENCES workout_sessions(id) ON DELETE CASCADE,
+  FOREIGN KEY(exercise_id) REFERENCES workout_exercises(id) ON DELETE RESTRICT
+);
+
+CREATE TABLE IF NOT EXISTS workout_session_sets (
+  id TEXT PRIMARY KEY,
+  session_item_id TEXT NOT NULL,
+  set_index INTEGER NOT NULL,
+  reps REAL,
+  weight REAL,
+  duration_seconds REAL,
+  distance REAL,
+  pace REAL,
+  intensity REAL,
+  heart_rate REAL,
+  notes TEXT NOT NULL,
+  FOREIGN KEY(session_item_id) REFERENCES workout_session_items(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS workout_day_status (
+  status_date TEXT PRIMARY KEY,
+  is_rest_day INTEGER NOT NULL DEFAULT 0,
+  notes TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS workout_bodyweight_entries (
+  id TEXT PRIMARY KEY,
+  entry_date TEXT NOT NULL,
+  weight REAL NOT NULL,
+  notes TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
 `);
 
 db.exec(`
@@ -255,9 +344,43 @@ db.prepare(
 `
 ).run(now, now, now, now, now, now, now, now);
 
+db.prepare(
+  `
+  INSERT OR IGNORE INTO workout_exercises (
+    id,
+    name,
+    exercise_type,
+    muscle_group,
+    equipment,
+    is_custom,
+    active,
+    created_at,
+    updated_at
+  ) VALUES
+    ('ex-back-squat', 'Back Squat', 'strength', 'legs', 'barbell', 0, 1, ?, ?),
+    ('ex-bench-press', 'Bench Press', 'strength', 'chest', 'barbell', 0, 1, ?, ?),
+    ('ex-deadlift', 'Deadlift', 'strength', 'posterior_chain', 'barbell', 0, 1, ?, ?),
+    ('ex-overhead-press', 'Overhead Press', 'strength', 'shoulders', 'barbell', 0, 1, ?, ?),
+    ('ex-pull-up', 'Pull-Up', 'strength', 'back', 'bodyweight', 0, 1, ?, ?),
+    ('ex-barbell-row', 'Barbell Row', 'strength', 'back', 'barbell', 0, 1, ?, ?),
+    ('ex-running', 'Running', 'cardio', 'cardio', 'none', 0, 1, ?, ?),
+    ('ex-cycling', 'Cycling', 'cardio', 'cardio', 'bike', 0, 1, ?, ?),
+    ('ex-rowing', 'Rowing', 'cardio', 'cardio', 'rower', 0, 1, ?, ?),
+    ('ex-jump-rope', 'Jump Rope', 'cardio', 'cardio', 'rope', 0, 1, ?, ?)
+`
+).run(now, now, now, now, now, now, now, now, now, now, now, now, now, now, now, now, now, now, now, now);
+
 export { db };
 
 export function resetForTests(): void {
+  db.exec("DELETE FROM workout_bodyweight_entries;");
+  db.exec("DELETE FROM workout_day_status;");
+  db.exec("DELETE FROM workout_session_sets;");
+  db.exec("DELETE FROM workout_session_items;");
+  db.exec("DELETE FROM workout_sessions;");
+  db.exec("DELETE FROM workout_template_items;");
+  db.exec("DELETE FROM workout_templates;");
+  db.exec("DELETE FROM workout_exercises WHERE is_custom = 1;");
   db.exec("DELETE FROM money_price_updates;");
   db.exec("DELETE FROM money_contributions;");
   db.exec("DELETE FROM money_holdings;");

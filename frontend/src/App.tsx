@@ -4,9 +4,11 @@ import { SettingsModal } from "./components/SettingsModal";
 import { MoneyApp } from "./money/MoneyApp";
 import { useChatState } from "./state/useChatState";
 import type { ProviderName } from "./types";
+import { WorkoutApp } from "./workout/WorkoutApp";
 
 const APP_BASE_PATH = "/ai";
 const MONEY_BASE_PATH = "/money";
+const WORKOUT_BASE_PATH = "/workout";
 
 function ChatRoute() {
   const state = useChatState();
@@ -168,6 +170,7 @@ function RootRoute() {
       <div className="root-links">
         <Link to={APP_BASE_PATH}>Open AI Chat</Link>
         <Link to={MONEY_BASE_PATH}>Open Money Tracker</Link>
+        <Link to={WORKOUT_BASE_PATH}>Open Workout Tracker</Link>
       </div>
     </main>
   );
@@ -180,6 +183,7 @@ export default function App() {
       <Route path={APP_BASE_PATH} element={<ChatRoute />} />
       <Route path={`${APP_BASE_PATH}/chat/:chatId`} element={<ChatRoute />} />
       <Route path={MONEY_BASE_PATH} element={<MoneyApp />} />
+      <Route path={WORKOUT_BASE_PATH} element={<WorkoutApp />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
